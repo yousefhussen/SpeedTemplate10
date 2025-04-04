@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
+use Modules\Auth\Entities\User;
 
 test('email can be verified', function () {
     $user = User::factory()->create([

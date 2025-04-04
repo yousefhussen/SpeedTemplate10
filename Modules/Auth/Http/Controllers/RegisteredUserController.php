@@ -1,15 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace Modules\Auth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
+use Modules\Auth\Entities\User;
+use Modules\Auth\Http\Resources\UserResource;
+use Modules\Auth\Mail\CodeMail;
 
 class RegisteredUserController extends Controller
 {
@@ -32,10 +35,22 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+
+
+        //verification method
+        if (config('auth.verify_using_code')) {
+
+            $user->codes()->create([
+                'code' => Str::upper(Str::random(4)),
+                'code_type' => 'activation',
+            ]);
+            Mail::to($user->email)->send(new CodeMail($user));
+        } else {
+            event(new Registered($user));
+        }
 
         Auth::login($user);
 
-        return response()->json($user);
+        return response()->json(['message' => 'User created successfully, please check your email for verification code', 'data' => UserResource::make($user)]);
     }
 }

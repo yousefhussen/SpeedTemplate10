@@ -2,13 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
-use App\UserResource;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Modules\Auth\Http\Resources\UserResource;
 use Symfony\Component\HttpFoundation\Response;
-use function Pest\Laravel\json;
 
 class RedirectIfAuthenticated
 {
