@@ -14,7 +14,7 @@ class GoogleController extends Controller
     public function redirect()
     {
         return Socialite::driver('google')
-            ->with(['prompt' => 'consent'])->stateless()
+            ->with(['prompt' => 'consent'])
             ->redirectUrl(config('services.google.redirect'))
             ->redirect();
     }
@@ -25,16 +25,30 @@ class GoogleController extends Controller
 
 
             $googleUser = Socialite::driver('google')->user();
+            //check if the user is already registered
 
-            $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
+            $existingUser = User::where('email', $googleUser->getEmail())->first();
+            if ($existingUser) {
+                // User already exists
+                //add the google_id to the user
+                $existingUser->google_id = $googleUser->getId();
+                \Auth::login($existingUser);
+                return redirect()->away(
+                    config('app.frontend_url') . '/'
+                );
+            }
+            else {
+
+                // User does not exist, create a new user
+                $user = User::create([
                     'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
-                    'avatar' => $googleUser->getAvatar(),
-                ]
-            );
-            \Auth::login($user);
+                    'password' => bcrypt(Str::random(16)), // Generate a random password
+                    'profile_picture' => $googleUser->getAvatar(),
+                ]);
+                \Auth::login($user);
+            }
 
             return redirect()->away(
                 config('app.frontend_url') . '/'

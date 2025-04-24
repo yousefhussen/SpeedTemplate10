@@ -4,8 +4,8 @@ namespace Modules\Auth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Modules\Auth\Http\Resources\UserResource;
 
@@ -14,7 +14,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(Request $request)
+    public function store(LoginRequest $request)
     {
 
         $credentials = $request->only('email', 'password');
@@ -22,9 +22,17 @@ class AuthenticatedSessionController extends Controller
         if (!$token = Auth::attempt($credentials)) {
             return response()->json(['error' => 'Credentials Not Matching'], 401);
         }
+        if (Auth::guard('web')) {
+            $request->authenticate();
+
+            $request->session()->regenerate();
+
+            return response()->json(['message' => 'User logged in successfully']);
+        }
 
         return $this->respondWithToken($token);
     }
+
     protected function respondWithToken($token)
     {
         return response()->json([
@@ -45,7 +53,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): \Illuminate\Http\JsonResponse
+    public function destroy(Request $request): JsonResponse
     {
         Auth::guard('web')->logout();
 
@@ -55,6 +63,7 @@ class AuthenticatedSessionController extends Controller
 
         return response()->json(['message' => 'User logged out successfully']);
     }
+
     public function getUser(Request $request)
     {
         $user = Auth::user();

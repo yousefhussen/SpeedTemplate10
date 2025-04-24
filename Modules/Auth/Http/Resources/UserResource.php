@@ -13,6 +13,8 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            //make the pp a link if it is not a url
+            'profile_picture' => filter_var($this->profile_picture, FILTER_VALIDATE_URL) ? $this->profile_picture : url($this->profile_picture),
 
         ];
     }

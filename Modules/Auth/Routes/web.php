@@ -60,6 +60,18 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::get('/user', [AuthenticatedSessionController::class, 'getUser'])->middleware('auth');
 
 
+//serve profile picture
+Route::get('/profile_pictures/{filename}', function ($filename) {
+    $path = storage_path('app/public/profile_pictures/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path);
+})->name('profile.picture');
+
+
 
 Route::post('/verify-code', [\Modules\Auth\Http\Controllers\AuthController::class, 'verify']);
 

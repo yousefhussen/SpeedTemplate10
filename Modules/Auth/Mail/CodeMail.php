@@ -19,7 +19,9 @@ class CodeMail extends Mailable
 
     public function build()
     {
+        //from users codes get the latest activation code
+        $code = $this->user->codes()->latest()->first();
         return $this->view('auth::emails.code')
-            ->with(['code' => $this->user->code, 'code_type' => $this->user->code_type]);
+            ->with(['code' => $code->code, 'code_type' => $code->code_type]);
     }
 }
