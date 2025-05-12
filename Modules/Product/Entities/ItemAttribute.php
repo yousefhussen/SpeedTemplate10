@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ItemAttribute extends Model
 {
     protected $table = 'item_attributes';
-    public $incrementing = false;
-    protected $keyType = 'string';
 
     protected $fillable = [
         'itemId',

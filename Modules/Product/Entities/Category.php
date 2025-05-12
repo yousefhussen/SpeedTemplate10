@@ -8,9 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Category extends Model
 {
     protected $table = 'categories';
-    public $incrementing = false;
-    protected $keyType = 'string';
-
     protected $fillable = ['name'];
 
     // Relationships

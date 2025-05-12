@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Item extends Model
 {
     protected $table = 'items';
-    public $incrementing = false; // For string/UUID IDs
-    protected $keyType = 'string';
 
     protected $fillable = [
         'name',
