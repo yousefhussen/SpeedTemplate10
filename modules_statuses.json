@@ -1,3 +1,5 @@
 {
-    "Auth": true
+    "Auth": true,
+    "Wishlist": true,
+    "Product": true
 }
