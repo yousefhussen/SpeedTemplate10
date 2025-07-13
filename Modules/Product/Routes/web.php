@@ -15,11 +15,14 @@ use Modules\Product\Http\Controllers\CategoryController;
 use Modules\Product\Http\Controllers\ItemController;
 
 Route::prefix('product')->group(function() {
-    Route::get('/', 'ProductController@index');
+
     Route::get('/items', [ItemController::class, 'index']);
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/colors', [ItemController::class, 'getColors']);
     Route::get('/sizes', [ItemController::class, 'getSizes']);
+    //get item details by id
+    Route::get('/items/{id}', [ItemController::class, 'show']);
+
 
 });
 //route to get the images in the rescources/assets/images directory by name

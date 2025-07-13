@@ -5,7 +5,7 @@ namespace Modules\Product\Entities;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ItemAttribute extends Model
+class  ItemAttribute extends Model
 {
     protected $table = 'item_attributes';
 
