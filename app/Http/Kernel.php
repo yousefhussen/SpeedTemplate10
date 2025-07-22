@@ -40,9 +40,10 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            SetGuardToApi::class,
+            
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            SetGuardToApi::class,
         ],
     ];
 
