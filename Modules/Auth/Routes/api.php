@@ -22,12 +22,16 @@ use Modules\Auth\Http\Controllers\VerifyEmailController;
 */
 
 
-Route::post('/register', [RegisteredUserController::class, 'store'])
+Route::post('/register', [RegisteredUserController::class, 'apiStore'])
     ->middleware('guest')
     ->name('register');
 
-Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+Route::post('/login', [AuthenticatedSessionController::class, 'apiStore'])
     ->middleware('guest')
     ->name('login');
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'apiDestroy']);
+
+Route::get('/user', [AuthenticatedSessionController::class, 'getUser'])->middleware('auth:sanctum');
 
 

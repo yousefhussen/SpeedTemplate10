@@ -67,4 +67,53 @@ class RegisteredUserController extends Controller
             'data' => UserResource::make($user),
         ]);
     }
+
+    public function apiStore(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Validation for profile picture
+        ]);
+
+        $profilePicturePath = null;
+
+        // Handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+
+            $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'profile_picture' => $profilePicturePath, // Save the file path
+        ]);
+
+        // Verification method
+        if (config('auth.verify_using_code')) {
+            $user->codes()->create([
+                'code' => Str::upper(Str::random(4)),
+                'code_type' => 'activation',
+            ]);
+            Mail::to($user->email)->send(new CodeMail($user));
+        } else {
+            //create token
+            $token = $user->createToken('auth_token')->plainTextToken;
+        }
+
+
+        Auth::login($user);
+
+        return response()->json([
+            'message' => config('auth.verify_using_code') ? 'User created successfully, please check your email for verification code' : 'User created successfully, you are logged in',
+            'data' => UserResource::make($user),
+            'token' => $token ?? null, // Return token if available
+
+        ]);
+
+    }
+
 }

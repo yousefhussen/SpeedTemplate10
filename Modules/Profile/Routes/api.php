@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Modules\Profile\Http\Controllers\WishlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,25 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/profile', function (Request $request) {
-    return $request->user();
+Route::prefix('profile')->group(function() {
+    Route::get('/', 'ProfileController@index');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/wishlist', [WishlistController::class, 'store']);
+        Route::get('/wishlist', [WishlistController::class, 'index']); // Retrieve wishlist items
+        Route::delete('/wishlist/{itemId}', [WishlistController::class, 'destroy']); // Remove an item
+        //get wishlist ids
+        Route::get('/wishlist/ids', [WishlistController::class, 'getWishlistIds']);
+
+
+        //cart
+        Route::post('/cart', 'CartController@store');
+        Route::get('/cart', 'CartController@index'); // Retrieve cart items
+        Route::delete('/cart/{cartItemId}', 'CartController@destroy'); // Remove an item from the cart
+        Route::put('/cart/{cartItemId}/decrease', 'CartController@decreaseQuantity'); // Decrease quantity of an item in the cart
+        Route::put('/cart/{cartItemId}/increase', 'CartController@increaseQuantity'); // Increase quantity of an item in the cart
+
+    });
+
+
 });
