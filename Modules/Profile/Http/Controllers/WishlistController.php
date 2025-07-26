@@ -76,6 +76,7 @@ class WishlistController extends Controller
 
     public function getWishlistIds(Request $request)
     {
+
         $user = $request->user(); // Get the authenticated user
 
         // Retrieve only the item IDs from the user's wishlist

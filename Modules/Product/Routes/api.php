@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
+use Modules\Product\Http\Controllers\CategoryController;
+use Modules\Product\Http\Controllers\ItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +15,22 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/product', function (Request $request) {
-    return $request->user();
+Route::prefix('product')->group(function() {
+
+    Route::get('/items', [ItemController::class, 'index']);
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/colors', [ItemController::class, 'getColors']);
+    Route::get('/sizes', [ItemController::class, 'getSizes']);
+    //get item details by id
+    Route::get('/items/{id}', [ItemController::class, 'show']);
+
+
 });
+//route to get the images in the rescources/assets/images directory by name
+Route::get('/items/{filename}', function ($filename) {
+    $path = module_path('Product', 'Resources/assets/Images/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+})->name('images');
