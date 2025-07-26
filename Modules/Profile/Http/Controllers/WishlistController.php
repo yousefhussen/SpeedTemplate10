@@ -43,7 +43,7 @@ class WishlistController extends Controller
         $user = $request->user(); // Get the authenticated user
 
         // Retrieve wishlist items with related item details
-        $wishlistItems =  \Modules\Profile\Entities\wishlist::where('user_id', $user->id)
+        $wishlistItems =  wishlist::where('user_id', $user->id)
             ->with('item') // Assuming a relationship exists between Wishlist and Item
             ->get();
 
