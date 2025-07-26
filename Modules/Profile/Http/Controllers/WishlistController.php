@@ -47,6 +47,10 @@ class WishlistController extends Controller
             ->with('item') // Assuming a relationship exists between Wishlist and Item
             ->get();
 
+        if ($wishlistItems->isEmpty()) {
+            return response()->json(['message' => 'Your wishlist is empty'], 404);
+        }
+
         return \Modules\Profile\Http\Resources\WishlistResource::collection($wishlistItems);
     }
 
