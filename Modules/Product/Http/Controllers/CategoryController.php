@@ -4,6 +4,7 @@ namespace Modules\Product\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Modules\Product\Entities\Category;
+use Modules\Product\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
@@ -14,6 +15,8 @@ class CategoryController extends Controller
         $categories = Category::all();
 
         // Return the categories as a JSON response
-        return response()->json($categories);
+        return CategoryResource::collection(
+            $categories
+        );
     }
 }

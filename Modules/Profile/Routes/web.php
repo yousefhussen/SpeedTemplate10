@@ -12,6 +12,7 @@
 */
 
 
+use Modules\Auth\Http\Controllers\AuthenticatedSessionController;
 use Modules\Profile\Http\Controllers\WishlistController;
 
 Route::prefix('profile')->group(function() {
@@ -31,6 +32,11 @@ Route::prefix('profile')->group(function() {
         Route::delete('/cart/{cartItemId}', 'CartController@destroy'); // Remove an item from the cart
         Route::put('/cart/{cartItemId}/decrease', 'CartController@decreaseQuantity'); // Decrease quantity of an item in the cart
         Route::put('/cart/{cartItemId}/increase', 'CartController@increaseQuantity'); // Increase quantity of an item in the cart
+
+        //alter profile picture
+        Route::post('/profile-picture', [AuthenticatedSessionController::class, 'updateProfilePicture'])
+            ->middleware('auth:sanctum')
+            ->name('profile.picture.update');
 
     });
 

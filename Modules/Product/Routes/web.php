@@ -25,6 +25,15 @@ Route::prefix('product')->group(function() {
 
 
 });
+//Images/Categories/
+Route::get('/images/categories/{filename}', function ($filename) {
+    $path = module_path('Product', 'Resources/assets/Images/Categories/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+
+})->name('category.images');
 //route to get the images in the rescources/assets/images directory by name
 Route::get('/items/{filename}', function ($filename) {
     $path = module_path('Product', 'Resources/assets/Images/' . $filename);

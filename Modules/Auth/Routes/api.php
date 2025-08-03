@@ -35,3 +35,6 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'apiDestroy']);
 Route::get('/user', [AuthenticatedSessionController::class, 'getUser'])->middleware('auth:sanctum');
 
 
+
+
+

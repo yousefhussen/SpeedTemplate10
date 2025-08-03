@@ -96,5 +96,21 @@ class AuthenticatedSessionController extends Controller
         return new UserResource($user);
     }
 
+    public function updateProfilePicture(Request $request): JsonResponse
+    {
+        $request->validate([
+            'profile_picture' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+        ]);
+
+        $user = Auth::user();
+
+        if ($request->hasFile('profile_picture')) {
+            $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $user->update(['profile_picture' => $profilePicturePath]);
+        }
+
+        return response()->json(['message' => 'Profile picture updated successfully']);
+    }
+
 
 }

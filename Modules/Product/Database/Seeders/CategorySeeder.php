@@ -11,12 +11,19 @@ class CategorySeeder extends Seeder
     public function run()
     {
 
-
         $categories = ['Men', 'Women', 'Kids', 'Accessories', 'Shoes'];
+        $categories_images=[
+            'C1.png',
+            'C2.png',
+            'C3.png',
+            'C4.png',
+            'C5.png'
+        ];
 
-        foreach ($categories as $category) {
+        foreach ($categories as $index => $category) {
             Category::create([
-                'name'  => $category
+                'name'  => $category,
+                'image' => $categories_images[$index] ?? null
             ]);
         }
     }
