@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Modules\Auth\Http\Controllers\AuthenticatedSessionController;
+use Modules\Profile\Http\Controllers\AddressController;
 use Modules\Profile\Http\Controllers\WishlistController;
 
 /*
@@ -37,6 +38,12 @@ Route::prefix('profile')->group(function() {
         Route::post('/profile-picture', [AuthenticatedSessionController::class, 'updateProfilePicture'])
             ->middleware('auth:sanctum')
             ->name('profile.picture.update');
+
+
+
+            Route::get('/addresses', [AddressController::class, 'index']);
+            Route::post('/addresses', [AddressController::class, 'store']);
+
 
     });
 

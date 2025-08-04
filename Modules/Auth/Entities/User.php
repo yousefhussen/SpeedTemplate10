@@ -42,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail , JWTSubject
         'password' => 'hashed',
     ];
 
+
     public function codes()
     {
         return $this->hasMany(Code::class);
@@ -60,5 +61,12 @@ class User extends Authenticatable implements MustVerifyEmail , JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    // File: Modules/Auth/Entities/User.php
+
+    public function addresses()
+    {
+        return $this->hasMany(\Modules\Profile\Entities\Address::class);
     }
 }
