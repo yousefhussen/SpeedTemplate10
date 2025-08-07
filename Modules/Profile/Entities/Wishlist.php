@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Auth\Entities\User;
 use Modules\Product\Entities\Item;
 
-class wishlist extends Model
+class Wishlist extends Model
 {
     protected $fillable = [
         'user_id',

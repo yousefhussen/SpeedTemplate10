@@ -48,7 +48,7 @@ class WishlistController extends Controller
         }
 
         // Retrieve wishlist items with related item details
-        $wishlistItems =  wishlist::where('user_id', $user->id)
+        $wishlistItems =  Wishlist::where('user_id', $user->id)
             ->with('item') // Assuming a relationship exists between Wishlist and Item
             ->get();
 
