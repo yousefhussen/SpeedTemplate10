@@ -42,6 +42,8 @@ Route::prefix('profile')->group(function() {
         // Address routes
         Route::get('/addresses', [AddressController::class, 'index']);
         Route::post('/addresses', [AddressController::class, 'store']);
+        Route::put('/addresses/{id}', [AddressController::class, 'update']);
+        Route::delete('/addresses/{id}', [AddressController::class, 'destroy']);
 
     });
 

@@ -42,6 +42,11 @@ class WishlistController extends Controller
     {
         $user = $request->user(); // Get the authenticated user
 
+        $wishlistExists = Wishlist::where('user_id', $user->id)->exists();
+        if (!$wishlistExists) {
+            return response()->json(['message' => 'Your wishlist is empty'], 404);
+        }
+
         // Retrieve wishlist items with related item details
         $wishlistItems =  wishlist::where('user_id', $user->id)
             ->with('item') // Assuming a relationship exists between Wishlist and Item
