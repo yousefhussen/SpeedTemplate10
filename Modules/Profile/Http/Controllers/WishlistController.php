@@ -18,11 +18,11 @@ class WishlistController extends Controller
     public function store(\Modules\Profile\Http\Requests\WishlistRequest $request)
     {
         $user = $request->user(); // Get the authenticated user
-        $itemId = $request->validated()['item_id']; // Get the validated item_id
+        $item_id = $request->validated()['item_id']; // Get the validated item_id
 
         // Check if the item already exists in the user's wishlist
         $exists = Wishlist::where('user_id', $user->id)
-            ->where('item_id', $itemId)
+            ->where('item_id', $item_id)
             ->exists();
 
         if ($exists) {
@@ -32,7 +32,7 @@ class WishlistController extends Controller
         // Add the item to the wishlist
         Wishlist::create([
             'user_id' => $user->id,
-            'item_id' => $itemId,
+            'item_id' => $item_id,
         ]);
 
         return response()->json(['message' => 'Item added to wishlist successfully'], 201);
@@ -59,13 +59,13 @@ class WishlistController extends Controller
         return \Modules\Profile\Http\Resources\WishlistResource::collection($wishlistItems);
     }
 
-    public function destroy(Request $request, $itemId)
+    public function destroy(Request $request, $item_id)
     {
         $user = $request->user(); // Get the authenticated user
 
         // Find the wishlist entry for the user and item
         $wishlistItem = Wishlist::where('user_id', $user->id)
-            ->where('item_id', $itemId)
+            ->where('item_id', $item_id)
             ->first();
 
         if (!$wishlistItem) {

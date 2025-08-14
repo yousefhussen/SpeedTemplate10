@@ -12,7 +12,6 @@ class Item extends Model
     protected $fillable = [
         'name',
         'brand',
-        'price',
         'image',
         'totalRating'
     ];
@@ -20,7 +19,7 @@ class Item extends Model
     // Relationships
     public function attributes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(ItemAttribute::class, 'itemId');
+        return $this->hasMany(ItemAttribute::class, 'item_id');
     }
 
     public function categories(): BelongsToMany
@@ -28,7 +27,7 @@ class Item extends Model
         return $this->belongsToMany(
             Category::class,
             'item_categories',
-            'itemId',
+            'item_id',
             'categoryId'
         );
     }

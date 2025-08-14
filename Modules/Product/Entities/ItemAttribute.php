@@ -10,15 +10,21 @@ class  ItemAttribute extends Model
     protected $table = 'item_attributes';
 
     protected $fillable = [
-        'itemId',
+        'item_id',
         'color',
         'size',
-        'amount'
+        'amount',
+        'price',
     ];
 
     // Relationships
     public function item(): BelongsTo
     {
-        return $this->belongsTo(Item::class, 'itemId');
+        return $this->belongsTo(Item::class, 'item_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ItemAttributeImage::class);
     }
 }

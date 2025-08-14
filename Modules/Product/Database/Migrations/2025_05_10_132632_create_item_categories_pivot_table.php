@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('item_categories', function (Blueprint $table) {
             $table->id(); // Pivot table has its own ID (per ERD)
-            $table->foreignId('itemId')->constrained('items'); // Matches ERD's camelCase
+            $table->foreignId('item_id')->constrained('items'); // Matches ERD's camelCase
             $table->foreignId('categoryId')->constrained('categories'); // Matches ERD's camelCase
             $table->timestamps(); // Optional
         });

@@ -22,7 +22,7 @@ Route::prefix('profile')->group(function() {
     Route::middleware('auth')->group(function () {
         Route::post('/wishlist', [WishlistController::class, 'store']);
         Route::get('/wishlist', [WishlistController::class, 'index']); // Retrieve wishlist items
-        Route::delete('/wishlist/{itemId}', [WishlistController::class, 'destroy']); // Remove an item
+        Route::delete('/wishlist/{item_id}', [WishlistController::class, 'destroy']); // Remove an item
         //get wishlist ids
         Route::get('/wishlist/ids', [WishlistController::class, 'getWishlistIds']);
 

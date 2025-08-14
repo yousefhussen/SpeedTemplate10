@@ -28,15 +28,15 @@ class ItemController extends Controller
             ->when(!$request->quick_search, function ($query) use ($request) {
                 // Always apply filters first
                 $query->when($request->categories, fn($query, $categories)
-                    => $this->filterByCategories($query, $categories))
+                => $this->filterByCategories($query, $categories))
                     ->when($request->color, fn($query, $color)
                     => $this->filterByColor($query, $color))
                     ->when($request->size, fn($query, $size)
                     => $this->filterBySize($query, $size))
                     ->when($request->min_price, fn($query, $minPrice)
-                    => $query->where('price', '>=', $minPrice))
+                    => $query->whereHas('attributes', fn($q) => $q->where('price', '>=', $minPrice)))
                     ->when($request->max_price, fn($query, $maxPrice)
-                    => $query->where('price', '<=', $maxPrice));
+                    => $query->whereHas('attributes', fn($q) => $q->where('price', '<=', $maxPrice)));
 
                 // Then apply search WITHIN the filtered results
                 $query->when($request->search, function ($query, $search) {

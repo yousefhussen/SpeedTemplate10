@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('item_attributes', function (Blueprint $table) {
+        Schema::create('item_attribute_images', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('item_id')->constrained("items"); // Matches ERD's camelCase
-            $table->string('color');
-            $table->string('size');
-            $table->integer('amount'); // Stock quantity
-            $table->timestamps(); // Optional
+            $table->unsignedBigInteger('item_attribute_id');
+            $table->string('image');
+            $table->timestamps();
 
+            $table->foreign('item_attribute_id')->references('id')->on('item_attributes')->onDelete('cascade');
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('item_attributes');
+        Schema::dropIfExists('item_attribute_images');
     }
 };

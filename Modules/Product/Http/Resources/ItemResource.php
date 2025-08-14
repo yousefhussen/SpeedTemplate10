@@ -12,11 +12,22 @@ class ItemResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'brand' => $this->brand,
-            'price' => $this->price,
             'image' => Url(asset($this->image)), // Adjust based on your storage
             'totalRating' => $this->totalRating,
-            'attributes' => $this->attributes,
-            'categories' => $this->categories,
+            'attributes' => $this->attributes->map(function ($attribute) {
+                return [
+                    'id' => $attribute->id,
+                    'price' => $attribute->price,
+                    'quantity' => $attribute->amount,
+                    'color' => $attribute->color,
+                    'size' => $attribute->size,
+                    'images' => $attribute->images->map(function ($image) {
+                        return Url(asset($image->image)); // Adjust based on your storage
+                    }),
+
+                ];
+            }),
+
         ];
     }
 }

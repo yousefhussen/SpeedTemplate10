@@ -17,7 +17,7 @@ class Category extends Model
             Item::class,
             'item_categories',
             'categoryId',
-            'itemId'
+            'item_id'
         );
     }
 }

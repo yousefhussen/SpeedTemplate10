@@ -19,7 +19,6 @@ class ProductDatabaseSeeder extends Seeder
             CategorySeeder::class,
             ItemSeeder::class,
             ItemAttributeSeeder::class,
-            ItemCategorySeeder::class
         ]);
         // $this->call("OthersTableSeeder");
     }
