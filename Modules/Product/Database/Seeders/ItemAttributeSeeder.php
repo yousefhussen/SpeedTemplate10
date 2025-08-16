@@ -32,7 +32,7 @@ class ItemAttributeSeeder extends Seeder
                         'item_id' => $item->id, // Auto-increment ID from Item
                         'color'  => $faker->randomElement($colors),
                         'size'   => $faker->randomElement($sizes),
-                        'amount' => $faker->numberBetween(10, 100)
+                        'amount' => $faker->randomFloat(10, 100)
                     ]);
                 }
                 catch (UniqueConstraintViolationException $e) {
