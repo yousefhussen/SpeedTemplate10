@@ -37,7 +37,7 @@ class ItemAttributeSeeder extends Seeder
                     ]);
                 }
                 catch (UniqueConstraintViolationException $e) {
-                    log("Duplicate entry for item_id: {$item->id}, color: {$item_attrib->color}, size: {$item_attrib->size}. Skipping this attribute.");
+                    \Log::info("Duplicate entry for item_id: {$item->id}, color: {$item_attrib->color}, size: {$item_attrib->size}. Skipping this attribute.");
                     continue;
                 }
 
