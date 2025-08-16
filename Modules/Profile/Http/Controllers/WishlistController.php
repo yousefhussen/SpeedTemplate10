@@ -90,4 +90,16 @@ class WishlistController extends Controller
 
         return response()->json($wishlistIds);
     }
+
+    public function isInWishlist($productId)
+    {
+        $userId = auth()->id(); // Get the authenticated user's ID
+
+        // Check if the product exists in the user's wishlist
+        $exists = Wishlist::where('user_id', $userId)
+            ->where('item_id', $productId)
+            ->exists();
+
+        return response()->json(['isInWishlist' => $exists]);
+    }
 }

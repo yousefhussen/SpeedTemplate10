@@ -25,6 +25,7 @@ Route::prefix('profile')->group(function() {
         Route::delete('/wishlist/{item_id}', [WishlistController::class, 'destroy']); // Remove an item
         //get wishlist ids
         Route::get('/wishlist/ids', [WishlistController::class, 'getWishlistIds']);
+        Route::get('/wishlist/check/{productId}', [WishlistController::class, 'isInWishlist'])->name('wishlist.check');
 
 
         //cart
