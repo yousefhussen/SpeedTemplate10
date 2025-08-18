@@ -130,7 +130,7 @@ class CartController extends Controller
             ->first();
 
         if (!$cartItem) {
-            return response()->json(['message' => 'Item not found in cart','success' => false], 404);
+            return response()->json(['message' => 'Item not Attribute found in cart','success' => false], 404);
         }
 
         // Update the item attribute's on hold count and amount

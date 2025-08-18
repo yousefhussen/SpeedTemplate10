@@ -59,6 +59,9 @@ class CartController extends Controller
     //decrease the quantity of an item in the cart
     public function decreaseQuantity($cartItemId)
     {
+        if (!is_numeric($cartItemId)) {
+            return response()->json(['message' => 'Invalid cart item ID', 'success' => false], 400);
+        }
         $user = auth()->user(); // Get the authenticated user
 
         // Find the cart item
@@ -91,6 +94,9 @@ class CartController extends Controller
     //increase the quantity of an item in the cart
     public function increaseQuantity($cartItemId)
     {
+        if (!is_numeric($cartItemId)) {
+            return response()->json(['message' => 'Invalid cart item attribute ID', 'success' => false], 400);
+        }
         $user = \Auth::user(); // Get the authenticated user
 
         // Find the cart item
@@ -121,7 +127,10 @@ class CartController extends Controller
 
     //remove an item from the cart
     public function destroy($cartItemId)
-    { 
+    {
+        if (!is_numeric($cartItemId)) {
+            return response()->json(['message' => 'Invalid cart item attribute ID', 'success' => false], 400);
+        }
         $user = auth()->user(); // Get the authenticated user
 
         // Find the cart item
@@ -130,7 +139,7 @@ class CartController extends Controller
             ->first();
 
         if (!$cartItem) {
-            return response()->json(['message' => 'Item not found in cart','success' => false], 404);
+            return response()->json(['message' => 'Item not Attribute found in cart','success' => false], 404);
         }
 
         // Update the item attribute's on hold count and amount
