@@ -1,0 +1,132 @@
+<?php
+
+namespace Modules\Product\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Modules\Product\Entities\Review;
+use Modules\Product\Entities\ReviewImage;
+
+class ReviewController extends Controller
+{
+    public function store(Request $request)
+    {
+        // Validate request data
+        $validatedData = $request->validate([
+            'item_id' => 'required|exists:items,id',
+            'rating' => 'required|integer|between:1,5',
+            'title' => 'required|string',
+            'body' => 'required|string',
+            'purchase_verified' => 'boolean',
+            'images' => 'array|nullable',
+        ]);
+
+        // Create a new review
+        $review = Review::create($validatedData);
+
+        // Store images
+        if ($request->has('images')) {
+            foreach ($request->input('images') as $image) {
+                ReviewImage::create([
+                    'review_id' => $review->id,
+                    'image_url' => $image,
+                ]);
+            }
+        }
+
+        // Update item rating
+        $item = $review->item;
+        $item->update([
+            'total_rating' => $item->reviews()->avg('rating'),
+        ]);
+
+        return response()->json(['message' => 'Review created successfully'], 201);
+    }
+
+    public function update(Request $request, Review $review)
+    {
+        // Validate request data
+        $validatedData = $request->validate([
+            'rating' => 'integer|between:1,5',
+            'title' => 'string',
+            'body' => 'string',
+            'purchase_verified' => 'boolean',
+        ]);
+
+        // Update review
+        $review->update($validatedData);
+
+        // Update item rating
+        $item = $review->item;
+        $item->update([
+            'total_rating' => $item->reviews()->avg('rating'),
+        ]);
+
+        return response()->json(['message' => 'Review updated successfully'], 200);
+    }
+
+    public function destroy(Review $review)
+    {
+        // Delete review
+        $review->delete();
+
+        // Update item rating
+        $item = $review->item;
+        $item->update([
+            'total_rating' => $item->reviews()->avg('rating'),
+        ]);
+
+        return response()->json(['message' => 'Review deleted successfully'], 200);
+    }
+    public function verifyPurchase(Request $request, Review $review)
+    {
+        $user = auth()->user();
+        $item = $review->item;
+
+        if ($user->orders()->hasPurchased($item)) {
+            $review->update([
+                'purchase_verified' => true,
+            ]);
+
+            return response()->json(['message' => 'Purchase verified successfully'], 200);
+        }
+
+        return response()->json(['message' => 'Purchase not verified'], 422);
+    }
+
+    public function like(Review $review)
+    {
+        $user = auth()->user();
+
+        if ($user->hasLikedReview($review)) {
+            return response()->json(['message' => 'You have already liked this review'], 422);
+        }
+
+        $review->likes()->create([
+            'user_id' => $user->id,
+        ]);
+
+        return response()->json(['message' => 'Review liked successfully'], 200);
+    }
+
+    public function report(Review $review)
+    {
+        $user = auth()->user();
+
+        if ($user->hasReportedReview($review)) {
+            return response()->json(['message' => 'You have already reported this review'], 422);
+        }
+
+        $review->reports()->create([
+            'user_id' => $user->id,
+        ]);
+
+        // Check if the review has reached the report threshold
+        if ($review->reports()->count() >= config('reviews.report_threshold')) {
+            // Block the user who wrote the review
+            $review->user->block();
+        }
+
+        return response()->json(['message' => 'Review reported successfully'], 200);
+    }
+}

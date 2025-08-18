@@ -121,7 +121,7 @@ class CartController extends Controller
 
     //remove an item from the cart
     public function destroy($cartItemId)
-    { 
+    {
         $user = auth()->user(); // Get the authenticated user
 
         // Find the cart item
