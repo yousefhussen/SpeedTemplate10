@@ -27,6 +27,7 @@ Route::prefix('product')->group(function() {
 
     Route::group(['prefix' => 'reviews' , 'middleware' => 'auth:sanctum' ], function () {
         Route::post('/', 'ReviewController@store');
+        Route::get('/', 'ReviewController@index');
         Route::put('/{review}', 'ReviewController@update');
         Route::delete('/{review}', 'ReviewController@destroy');
         Route::get('/{item}', 'ReviewController@itemReviews');

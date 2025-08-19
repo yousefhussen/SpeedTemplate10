@@ -18,7 +18,7 @@ class CartResource extends JsonResource
                 'color' => $this->item_attribute->color,
                 'size' => $this->item_attribute->size,
                 'image' => url($this->item_attribute->item->image),
-                'price' => (string) ( (double) $this->item_attribute->item->price ),
+                'price' => (string) $this->item_attribute->item->price,
                 'name' => $this->item_attribute->item->name,
 
 

@@ -66,7 +66,7 @@ class CartController extends Controller
 
         // Find the cart item
         $cartItem = \Modules\Profile\Entities\Cart::where('user_id', $user->id)
-            ->where('id', $cartItemId)
+            ->where('item_attributes_id', $cartItemId)
             ->first();
 
         if (!$cartItem) {
@@ -153,5 +153,26 @@ class CartController extends Controller
         $cartItem->delete();
 
         return response()->json(['message' => 'Item removed from cart successfully' , 'success' => true], 200);
+    }
+
+//    clear cart
+    public function clearCart()
+    {
+        $user = auth()->user(); // Get the authenticated user
+
+        // Retrieve all cart items for the user
+        $cartItems = \Modules\Profile\Entities\Cart::where('user_id', $user->id)->get();
+
+        // Update item attributes and delete cart items
+        foreach ($cartItems as $cartItem) {
+            $itemAttribute = \Modules\Product\Entities\ItemAttribute::find($cartItem->item_attributes_id);
+            if ($itemAttribute) {
+                $itemAttribute->decrement('on_hold_count', $cartItem->quantity);
+                $itemAttribute->increment('amount', $cartItem->quantity);
+            }
+            $cartItem->delete();
+        }
+
+        return response()->json(['message' => 'Cart cleared successfully', 'success' => true], 200);
     }
 }

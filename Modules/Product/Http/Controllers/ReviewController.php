@@ -4,8 +4,13 @@ namespace Modules\Product\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Modules\Product\Entities\Item;
 use Modules\Product\Entities\Review;
 use Modules\Product\Entities\ReviewImage;
+use Modules\Product\Http\Requests\ItemReviewsRequest;
+use Modules\Product\Http\Resources\ReviewResourceCollection;
+use Modules\Product\Services\ImageResizer;
 
 class ReviewController extends Controller
 {
@@ -26,10 +31,14 @@ class ReviewController extends Controller
 
         // Store images
         if ($request->has('images')) {
-            foreach ($request->input('images') as $image) {
+            foreach ($request->file('images') as $image) {
+                // Save the image to the filesystem
+                $path = $image->store('public/reviews');
+
+                // Save the file path in the database
                 ReviewImage::create([
                     'review_id' => $review->id,
-                    'image_url' => $image,
+                    'image_url' => Storage::url($path), // Generate a public URL
                 ]);
             }
         }
@@ -128,5 +137,12 @@ class ReviewController extends Controller
         }
 
         return response()->json(['message' => 'Review reported successfully'], 200);
+    }
+
+    public function itemReviews(ItemReviewsRequest $request, Item $item)
+    {
+        $reviews = $item->reviews()->latest()->paginate(10);
+
+        return new ReviewResourceCollection($reviews);
     }
 }
