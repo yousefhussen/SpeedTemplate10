@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Modules\Product\Http\Controllers\CategoryController;
 use Modules\Product\Http\Controllers\ItemController;
+use Modules\Product\Http\Controllers\ReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,13 +26,18 @@ Route::prefix('product')->group(function() {
     Route::get('/items/{id}', [ItemController::class, 'show']);
 
 
-    Route::group(['prefix' => 'reviews' , 'middleware' => 'auth:sanctum' ], function () {
-        Route::post('/', 'ReviewController@store');
-        Route::put('/{review}', 'ReviewController@update');
-        Route::delete('/{review}', 'ReviewController@destroy');
-        Route::get('/{item}', 'ReviewController@itemReviews');
-        Route::post('/{review}/like', 'ReviewController@like');
-        Route::post('/{review}/report', 'ReviewController@report');
+    Route::group(['prefix' => 'reviews' ], function () {
+        
+        Route::group(['middleware' => 'auth:sanctum' ], function () {
+            Route::post('/', [ReviewController::class, 'store']);
+            // Route::put('/{review}', [ReviewController::class, 'update']);
+            Route::delete('/{review}', [ReviewController::class, 'destroy']);
+            Route::post('/{review}/like', [ReviewController::class, 'like'])->name('reviews.like');
+            Route::post('/{review}/report', [ReviewController::class, 'report'])->name('reviews.report');
+        });
+        Route::get('/{item}', [ReviewController::class, 'itemReviews'])->name('reviews.itemReviews');
+        Route::get('/{item}/stats', [ReviewController::class, 'getRatingStats'])->name('reviews.ratingStats');
+
     });
 
 

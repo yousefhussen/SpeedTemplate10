@@ -15,9 +15,11 @@
 use Modules\Auth\Http\Controllers\AuthenticatedSessionController;
 use Modules\Profile\Http\Controllers\AddressController;
 use Modules\Profile\Http\Controllers\WishlistController;
+use Modules\Profile\Http\Controllers\ProfileController;
+use Modules\Profile\Http\Controllers\CartController;
 
 Route::prefix('profile')->group(function() {
-    Route::get('/', 'ProfileController@index');
+    Route::get('/', [ProfileController::class, 'index']);
 
     Route::middleware('auth')->group(function () {
         Route::post('/wishlist', [WishlistController::class, 'store']);
@@ -29,13 +31,13 @@ Route::prefix('profile')->group(function() {
 
 
         //cart
-        Route::post('/cart', 'CartController@store');
-        Route::get('/cart', 'CartController@index'); // Retrieve cart items
-        Route::delete('/cart/{cartItemId}', 'CartController@destroy'); // Remove an item from the cart
-        Route::put('/cart/{cartItemId}/decrease', 'CartController@decreaseQuantity'); // Decrease quantity of an item in the cart
-        Route::put('/cart/{cartItemId}/increase', 'CartController@increaseQuantity'); // Increase quantity of an item in the cart
+        Route::post('/cart', [CartController::class, 'store']);
+        Route::get('/cart', [CartController::class, 'index']); // Retrieve cart items
+        Route::delete('/cart/remove/{cartItemId}', [CartController::class, 'destroy']); // Remove an item from the cart
+        Route::put('/cart/{cartItemId}/decrease', [CartController::class, 'decreaseQuantity']); // Decrease quantity of an item in the cart
+        Route::put('/cart/{cartItemId}/increase', [CartController::class, 'increaseQuantity']); // Increase quantity of an item in the cart
         //clear cart
-        Route::delete('/cart/clear', 'CartController@clearCart'); // Clear the cart
+        Route::delete('/cart/clear', [CartController::class, 'clearCart']); // Clear the cart
 
         //alter profile picture
         Route::post('/profile-picture', [AuthenticatedSessionController::class, 'updateProfilePicture'])

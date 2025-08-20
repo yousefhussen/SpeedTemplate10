@@ -31,4 +31,9 @@ class Review extends Model
     {
         return $this->hasMany(ReviewImage::class);
     }
+
+    public function likes()
+    {
+        return $this->hasMany(ReviewLike::class);
+    }
 }

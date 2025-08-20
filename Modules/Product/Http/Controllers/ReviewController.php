@@ -9,22 +9,16 @@ use Modules\Product\Entities\Item;
 use Modules\Product\Entities\Review;
 use Modules\Product\Entities\ReviewImage;
 use Modules\Product\Http\Requests\ItemReviewsRequest;
+use Modules\Product\Http\Requests\StoreReviewRequest;
 use Modules\Product\Http\Resources\ReviewResourceCollection;
 use Modules\Product\Services\ImageResizer;
 
 class ReviewController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreReviewRequest $request)
     {
-        // Validate request data
-        $validatedData = $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'rating' => 'required|integer|between:1,5',
-            'title' => 'required|string',
-            'body' => 'required|string',
-            'purchase_verified' => 'boolean',
-            'images' => 'array|nullable',
-        ]);
+        // The request is already validated by StoreReviewRequest
+        $validatedData = $request->validated();
 
         // Create a new review
         $review = Review::create($validatedData);
@@ -38,7 +32,7 @@ class ReviewController extends Controller
                 // Save the file path in the database
                 ReviewImage::create([
                     'review_id' => $review->id,
-                    'image_url' => Storage::url($path), // Generate a public URL
+                    'image_url' => $path, // Generate a public URL
                 ]);
             }
         }
@@ -108,14 +102,25 @@ class ReviewController extends Controller
         $user = auth()->user();
 
         if ($user->hasLikedReview($review)) {
-            return response()->json(['message' => 'You have already liked this review'], 422);
+            // Unlike the review if already liked
+            $review->likes()->where('user_id', $user->id)->delete();
+            $message = 'Review unliked successfully';
+        } else {
+            // Like the review
+            $review->likes()->create([
+                'user_id' => $user->id,
+            ]);
+            $message = 'Review liked successfully';
         }
 
-        $review->likes()->create([
-            'user_id' => $user->id,
-        ]);
+        // Refresh the review to get updated likes count
+        $review->loadCount('likes');
 
-        return response()->json(['message' => 'Review liked successfully'], 200);
+        return response()->json([
+            'message' => $message,
+            'likes_count' => $review->likes_count,
+            'is_liked' => $user->hasLikedReview($review)
+        ], 200);
     }
 
     public function report(Review $review)
@@ -139,10 +144,86 @@ class ReviewController extends Controller
         return response()->json(['message' => 'Review reported successfully'], 200);
     }
 
-    public function itemReviews(ItemReviewsRequest $request, Item $item)
+    public function itemReviews(ItemReviewsRequest $request)
     {
-        $reviews = $item->reviews()->latest()->paginate(10);
-
+        $item = Item::findOrFail($request->item_id);
+        
+        $reviews = $item->reviews()
+            ->with(['user', 'images', 'likes']);
+            
+        // Apply sorting based on the sort_by parameter
+        switch ($request->sort_by) {
+            case 'highest_rating':
+                $reviews->orderBy('rating', 'desc');
+                break;
+                
+            case 'lowest_rating':
+                $reviews->orderBy('rating', 'asc');
+                break;
+                
+            case 'oldest':
+                $reviews->oldest();
+                break;
+                
+            case 'newest':
+            default:
+                $reviews->latest();
+                break;
+        }
+            
+        $reviews = $reviews->paginate($request->per_page);
+            
         return new ReviewResourceCollection($reviews);
+    }
+
+    /**
+     * Get rating statistics for an item
+     * 
+     * @param int $itemId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getRatingStats($itemId)
+    {
+        $item = Item::findOrFail($itemId);
+        
+        // Get total number of reviews
+        $totalReviews = $item->reviews()->count();
+        
+        if ($totalReviews === 0) {
+            return response()->json([
+                'average_rating' => 0,
+                'total_reviews' => 0,
+                'rating_percentages' => [
+                    '1' => 0,
+                    '2' => 0,
+                    '3' => 0,
+                    '4' => 0,
+                    '5' => 0,
+                ]
+            ]);
+        }
+        
+        // Get count for each rating
+        $ratingCounts = $item->reviews()
+            ->selectRaw('rating, COUNT(*) as count')
+            ->groupBy('rating')
+            ->pluck('count', 'rating')
+            ->toArray();
+        
+        // Calculate percentages
+        $ratingPercentages = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $count = $ratingCounts[$i] ?? 0;
+            $ratingPercentages[$i] = round(($count / $totalReviews) * 100, 2);
+        }
+        
+        // Calculate average rating
+        $averageRating = $item->reviews()->avg('rating');
+        
+        return response()->json([
+            'average_rating' => round($averageRating, 1),
+            'total_reviews' => $totalReviews,
+            'rating_percentages' => $ratingPercentages
+        ]);
     }
 }

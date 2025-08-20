@@ -3,47 +3,40 @@
 
 namespace Modules\Product\Http\Resources;
 
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ReviewResourceCollection extends JsonResource
+class ReviewResourceCollection extends ResourceCollection
 {
+    /**
+     * Transform the resource collection into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [
             'data' => ReviewResource::collection($this->collection),
-            'links' => [
-                'first' => $this->url(1),
-                'last' => $this->url($this->lastPage()),
-                'prev' => $this->previousPageUrl(),
-                'next' => $this->nextPageUrl(),
-            ],
-            'meta' => [
-                'current_page' => $this->currentPage(),
-                'from' => $this->firstItem(),
-                'last_page' => $this->lastPage(),
-                'per_page' => $this->perPage(),
-                'to' => $this->lastItem(),
-                'total' => $this->total(),
-            ],
         ];
     }
 
     public static function originalAttribute($index)
     {
-        if (property_exists(self::class, $index)) {
-            return $index;
-        }
+        $attributes = [
+            'id' => 'id',
+            // Add other attributes as needed
+        ];
 
-        return parent::originalAttribute($index);
+        return $attributes[$index] ?? null;
     }
 
     public static function transformedAttribute($index)
     {
-        if (property_exists(self::class, $index)) {
-            return $index;
-        }
+        $attributes = [
+            'id' => 'id',
+            // Add other attributes as needed
+        ];
 
-        return parent::transformedAttribute($index);
+        return $attributes[$index] ?? null;
     }
 }

@@ -12,11 +12,10 @@ class CartController extends Controller
 
         // Retrieve cart items with related item details
         $cartItems = \Modules\Profile\Entities\Cart::where('user_id', $user->id)
-            ->with(['item_attribute','item_attribute.item'])
+            ->with(['item_attribute', 'item_attribute.item'])
             ->get();
 
         return \Modules\Profile\Http\Resources\CartResource::collection($cartItems);
-
     }
 
     public function store(\Modules\Profile\Http\Requests\CartRequest $request)
@@ -60,7 +59,7 @@ class CartController extends Controller
     public function decreaseQuantity($cartItemId)
     {
         if (!is_numeric($cartItemId)) {
-            return response()->json(['message' => 'Invalid cart item ID', 'success' => false], 400);
+            return response()->json(['message' => 'Invalid cart item attribute ID', 'success' => false], 400);
         }
         $user = auth()->user(); // Get the authenticated user
 
@@ -70,7 +69,7 @@ class CartController extends Controller
             ->first();
 
         if (!$cartItem) {
-            return response()->json(['message' => 'Item not found in cart' , 'success' => false], 404);
+            return response()->json(['message' => 'Item not found in cart', 'success' => false], 404);
         }
 
         // Decrease the quantity
@@ -88,7 +87,7 @@ class CartController extends Controller
             $itemAttribute->increment('amount');
         }
 
-        return response()->json(['message' => 'Item quantity updated successfully' , 'success' => true], 200);
+        return response()->json(['message' => 'Item quantity updated successfully', 'success' => true], 200);
     }
 
     //increase the quantity of an item in the cart
@@ -105,14 +104,14 @@ class CartController extends Controller
             ->first();
 
         if (!$cartItem) {
-            return response()->json(['message' => 'Item Attribute not found in cart' , 'success' => false], 404);
+            return response()->json(['message' => 'Item Attribute not found in cart', 'success' => false], 404);
         }
 
         // Retrieve the item attribute
         $itemAttribute = \Modules\Product\Entities\ItemAttribute::find($cartItem->item_attributes_id);
 
         if (!$itemAttribute || $itemAttribute->amount < 1) {
-            return response()->json(['message' => 'Insufficient stock' , 'success' => false], 400);
+            return response()->json(['message' => 'Insufficient stock', 'success' => false], 400);
         }
 
         // Increase the quantity
@@ -122,7 +121,7 @@ class CartController extends Controller
         $itemAttribute->increment('on_hold_count');
         $itemAttribute->decrement('amount');
 
-        return response()->json(['message' => 'Item Attribute quantity updated successfully' , 'success' => true], 200);
+        return response()->json(['message' => 'Item Attribute quantity updated successfully', 'success' => true], 200);
     }
 
     //remove an item from the cart
@@ -139,7 +138,7 @@ class CartController extends Controller
             ->first();
 
         if (!$cartItem) {
-            return response()->json(['message' => 'Item not Attribute found in cart','success' => false], 404);
+            return response()->json(['message' => 'Item not Attribute found in cart', 'success' => false], 404);
         }
 
         // Update the item attribute's on hold count and amount
@@ -152,27 +151,61 @@ class CartController extends Controller
         // Delete the cart item
         $cartItem->delete();
 
-        return response()->json(['message' => 'Item removed from cart successfully' , 'success' => true], 200);
+        return response()->json(['message' => 'Item removed from cart successfully', 'success' => true], 200);
     }
 
-//    clear cart
+    //    clear cart
     public function clearCart()
     {
-        $user = auth()->user(); // Get the authenticated user
-
+        $user = auth()->user();
+        
         // Retrieve all cart items for the user
         $cartItems = \Modules\Profile\Entities\Cart::where('user_id', $user->id)->get();
 
-        // Update item attributes and delete cart items
-        foreach ($cartItems as $cartItem) {
-            $itemAttribute = \Modules\Product\Entities\ItemAttribute::find($cartItem->item_attributes_id);
-            if ($itemAttribute) {
-                $itemAttribute->decrement('on_hold_count', $cartItem->quantity);
-                $itemAttribute->increment('amount', $cartItem->quantity);
-            }
-            $cartItem->delete();
+        // Check if cart is empty
+        if ($cartItems->isEmpty()) {
+            return response()->json(['message' => 'Cart is empty', 'success' => false], 404);
         }
 
-        return response()->json(['message' => 'Cart cleared successfully', 'success' => true], 200);
+        $errors = [];
+
+        // Update item attributes and delete cart items
+        foreach ($cartItems as $cartItem) {
+            try {
+                $itemAttribute = \Modules\Product\Entities\ItemAttribute::find($cartItem->item_attributes_id);
+
+                if (!$itemAttribute) {
+                    $errors[] = "Item attribute with ID {$cartItem->item_attributes_id} not found";
+                    continue;
+                }
+
+                // Ensure we don't have negative values
+                if ($itemAttribute->on_hold_count >= $cartItem->quantity) {
+                    $itemAttribute->decrement('on_hold_count', $cartItem->quantity);
+                    $itemAttribute->increment('amount', $cartItem->quantity);
+                } else {
+                    $errors[] = "Insufficient on_hold_count for item attribute ID {$cartItem->item_attributes_id}";
+                    continue;
+                }
+
+                $cartItem->delete();
+            } catch (\Exception $e) {
+                $errors[] = "Error processing cart item ID {$cartItem->id}: " . $e->getMessage();
+                \Log::error("Error clearing cart item {$cartItem->id}: " . $e->getMessage());
+            }
+        }
+
+        if (!empty($errors)) {
+            return response()->json([
+                'message' => 'Some items could not be processed',
+                'errors' => $errors,
+                'success' => false
+            ], 207); // 207 Multi-Status
+        }
+
+        return response()->json([
+            'message' => 'Cart cleared successfully',
+            'success' => true
+        ], 200);
     }
 }

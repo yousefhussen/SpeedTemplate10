@@ -69,4 +69,29 @@ class User extends Authenticatable implements MustVerifyEmail , JWTSubject
     {
         return $this->hasMany(\Modules\Profile\Entities\Address::class);
     }
+
+    /**
+     * Get all likes made by this user
+     */
+    public function reviewLikes()
+    {
+        return $this->hasMany(\Modules\Product\Entities\ReviewLike::class);
+    }
+
+    /**
+     * Check if the user has liked a specific review
+     * 
+     * @param \Modules\Product\Entities\Review $review
+     * @return bool
+     */
+    public function hasLikedReview($review)
+    {
+        if (!$review) {
+            return false;
+        }
+        
+        return $this->reviewLikes()
+            ->where('review_id', $review->id)
+            ->exists();
+    }
 }

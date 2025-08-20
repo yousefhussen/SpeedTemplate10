@@ -13,19 +13,23 @@ class ItemReviewsRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'item_id' => $this->route('item'), // or $this->item if using route model binding
+            'sort_by' => $this->input('sort_by', 'newest'),
+            'per_page' => $this->input('per_page', 10),
+        ]);
+    }
+    
     public function rules()
     {
-        return [];
+        return [
+            'item_id' => 'required|exists:items,id',
+            'sort_by' => 'sometimes|string|in:newest,oldest,highest_rating,lowest_rating',
+            'per_page' => 'sometimes|integer|min:1|max:100',
+        ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            $item = Item::find($this->route('item'));
 
-            if (!$item) {
-                $validator->errors()->add('item', 'Item not found');
-            }
-        });
-    }
 }

@@ -19,6 +19,7 @@ class ProductDatabaseSeeder extends Seeder
             CategorySeeder::class,
             ItemSeeder::class,
             ItemAttributeSeeder::class,
+            ReviewSeeder::class,
         ]);
         // $this->call("OthersTableSeeder");
     }

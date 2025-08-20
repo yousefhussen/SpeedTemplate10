@@ -4,6 +4,8 @@ namespace Modules\Product\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Product\Entities\Review;
 
 class Item extends Model
 {
@@ -17,7 +19,7 @@ class Item extends Model
     ];
 
     // Relationships
-    public function attributes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function attributes(): HasMany
     {
         return $this->hasMany(ItemAttribute::class, 'item_id');
     }
@@ -30,5 +32,10 @@ class Item extends Model
             'item_id',
             'categoryId'
         );
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'item_id');
     }
 }
