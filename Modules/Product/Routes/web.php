@@ -41,6 +41,15 @@ Route::prefix('product')->group(function() {
 
 
 });
+
+//get reviews images from the storage
+Route::get('/reviews/images/{filename}', function ($filename) {
+    $path = storage_path('app/public/reviews/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+})->name('reviews.images');
 //Images/Categories/
 Route::get('/images/categories/{filename}', function ($filename) {
     $path = module_path('Product', 'Resources/assets/Images/Categories/' . $filename);
