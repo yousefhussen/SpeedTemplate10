@@ -17,3 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+
+//get reviews images from the storage
+Route::get('/storage/reviews/images/{filename}', function ($filename) {
+    $path = storage_path('app/public/reviews/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+})->name('reviews.images');

@@ -17,4 +17,12 @@ Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
 
+Route::get('/storage/reviews/images/{filename}', function ($filename) {
+    $path = storage_path('app/public/reviews/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+})->name('reviews.images');
+
 require __DIR__.'/auth.php';
